@@ -1,0 +1,78 @@
+# Configuration for Short-Term Energy Forecasting in Smart Buildings (IEEE Sensors Journal 2023)
+
+experiment:
+  name: "CU-BEMS-Short-Term-Energy-Forecasting"
+  random_seed: 42
+  lags: [2, 4, 8, 10]
+  optimal_lag: 8
+
+data:
+  raw_dir: "Datasets"
+  processed_dir: "data/processed"
+  resample_rule: "1h"       # Sum 1-minute readings to hourly consumption
+  train_ratio: 0.9          # 90% training (first 16 months, ~11,500 points)
+  test_ratio: 0.1           # 10% testing (last 2 months, ~1,400 points)
+  imputation_method: "ffill" # Linear forward-fill for missing timestamps
+  normalization: "zscore"   # (x - mean) / std
+
+features:
+  scenario_1: # Univariate
+    name: "Univariate"
+    columns: ["energy_consumption"]
+  scenario_2: # Multivariate
+    name: "Multivariate"
+    columns: ["energy_consumption", "hour_of_day", "day_type"]
+
+models:
+  cnn_lstm:
+    filters: 2
+    kernel_size: 2
+    cnn_activation: "relu"
+    lstm_units: 100
+    lstm_activation: "relu"
+    dense_units: 1
+    optimizer: "adam"
+    learning_rate: 0.01
+    loss_function: "mae"
+    batch_size: 128
+    epochs: 150
+
+  cnn_gru:
+    filters: 2
+    kernel_size: 2
+    cnn_activation: "relu"
+    gru_units: 100
+    gru_layers: 2
+    gru_activation: "relu"
+    dense_units: 1
+    optimizer: "adam"
+    learning_rate: 0.01
+    loss_function: "mae"
+    batch_size: 128
+    epochs: 150
+
+  lstm:
+    units: 100
+    activation: "relu"
+    optimizer: "adam"
+    learning_rate: 0.01
+    loss_function: "mae"
+    batch_size: 128
+    epochs: 150
+
+  gru:
+    units: 100
+    activation: "relu"
+    optimizer: "adam"
+    learning_rate: 0.01
+    loss_function: "mae"
+    batch_size: 128
+    epochs: 150
+
+  arima:
+    p: 8
+    d: 0
+    q: 8
+
+  linear_regression:
+    fit_intercept: true
